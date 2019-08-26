@@ -3,7 +3,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-DATA="/etc/zabbix/scripts/ct_param_value.txt"
+DATA="/etc/zabbix/scripts/ct_param_value.dat"
 
 echo "" > $DATA
 
@@ -14,6 +14,6 @@ for machine in $vz; do
 	cpu_load_val=`vzctl exec $machine ps aux | awk '{s += $3} END {print s}'`
 	mem_use_val=`vzctl exec2 $machine free -m | grep Mem | awk '{print $3}'`
 	
-	echo "$machine $cpu_load_val $mem_use_val" >> /etc/zabbix/scripts/ct_param_value.txt
+	echo "$machine $cpu_load_val $mem_use_val" >> /etc/zabbix/scripts/ct_param_value.dat
 	
 done

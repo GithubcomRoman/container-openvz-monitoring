@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATA="/etc/zabbix/scripts/ct_param_value.txt"
+DATA="/etc/zabbix/scripts/ct_param_value.dat"
 
 
 JSON=$(for i in `cat $DATA | awk '{print $1}' `; do printf "{\"{#CT_ID}\":\"$i\"},"; done | sed 's/^\(.*\).$/\1/')
