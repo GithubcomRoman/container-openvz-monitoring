@@ -1,4 +1,5 @@
 # container-openvz-monitoring
+Test on Zabbix 5.0.27
 
 crontab 
 
