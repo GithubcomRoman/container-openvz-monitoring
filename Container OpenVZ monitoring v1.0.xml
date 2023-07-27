@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2023-07-27T14:46:20Z</date>
+    <groups>
+        <group>
+            <name>Custom</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Container OpenVZ monitoring</template>
+            <name>Container OpenVZ monitoring</name>
+            <description>Monitoring:&#13;
+CPU usage&#13;
+MEM usage&#13;
+SPACE usage</description>
+            <groups>
+                <group>
+                    <name>Custom</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>open_vz</name>
+                </application>
+                <application>
+                    <name>{#CT_ID}</name>
+                </application>
+            </applications>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Container</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>ct_mon</key>
+                    <delay>3h</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>cpu_usage{#CT_ID}</name>
+                            <key>cpu_usage[&quot;{#CT_ID}&quot;]</key>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>open_vz</name>
+                                </application>
+                            </applications>
+                            <request_method>POST</request_method>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(6m)}&gt;370</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{avg(6m)}&lt;350</recovery_expression>
+                                    <name>CPU load on {#CT_ID}: server - {HOST.NAME}</name>
+                                    <priority>INFO</priority>
+                                    <description>Загрузка процессора в контейнере 100 единиц соответствует загрузке процессора сервера 0.01 на все ядра, т.е. фактически 1%.</description>
+                                    <tags>
+                                        <tag>
+                                            <tag>send_mail</tag>
+                                            <value>no</value>
+                                        </tag>
+                                    </tags>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{avg(5m)}&gt;1000</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{avg(5m)}&lt;1000</recovery_expression>
+                                    <name>CPU load on {#CT_ID} on {HOST.NAME}</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{avg(5m)}&gt;2000</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{avg(5m)}&lt;2000</recovery_expression>
+                                    <name>CPU load on {#CT_ID} on {HOST.NAME}</name>
+                                    <priority>AVERAGE</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>cpu_usage_dif_4m_24h{#CT_ID}</name>
+                            <type>CALCULATED</type>
+                            <key>cpu_usage_dif_1m_24h[&quot;{#CT_ID}&quot;]</key>
+                            <value_type>FLOAT</value_type>
+                            <params>avg(cpu_usage[&quot;{#CT_ID}&quot;],4m) / avg(cpu_usage[&quot;{#CT_ID}&quot;],24h)</params>
+                            <description>Фиксирует аномальный всплеск нагрузки, которого не было за последние 24 часа. &#13;
+Практические расчёты по CT104:&#13;
+avg24h - 3.37&#13;
+avg4m - 101 (мах200) - провтыкали&#13;
+значение item в пике - 29 (рекомендуемое для триггера для сработки - от 20)</description>
+                            <applications>
+                                <application>
+                                    <name>open_vz</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>mem_usage{#CT_ID}</name>
+                            <key>mem_usage[&quot;{#CT_ID}&quot;]</key>
+                            <applications>
+                                <application>
+                                    <name>open_vz</name>
+                                </application>
+                            </applications>
+                            <request_method>POST</request_method>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>space_usage{#CT_ID}</name>
+                            <key>space_usage[&quot;{#CT_ID}&quot;]</key>
+                            <units>B</units>
+                            <applications>
+                                <application>
+                                    <name>open_vz</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Container OpenVZ monitoring:cpu_usage_dif_1m_24h[&quot;{#CT_ID}&quot;].avg(6m)}&gt;22 and {Container OpenVZ monitoring:cpu_usage[&quot;{#CT_ID}&quot;].last()}&gt;150</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Container OpenVZ monitoring:cpu_usage_dif_1m_24h[&quot;{#CT_ID}&quot;].avg(15m)}&lt;5</recovery_expression>
+                            <name>abnormal CPU load on {#CT_ID} on {HOST.NAME}</name>
+                            <priority>WARNING</priority>
+                            <description>Look Monitoring - Latest data - Application&#13;
+ &quot;open_vz&quot; - cpu_usage{#CT_ID}</description>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <request_method>POST</request_method>
+                </discovery_rule>
+            </discovery_rules>
+        </template>
+    </templates>
+</zabbix_export>
